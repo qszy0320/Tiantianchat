@@ -402,6 +402,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chat, account, onBack, me
     const [summaryPerspective, setSummaryPerspective] = useState('third');
     const [customSummaryPrompt, setCustomSummaryPrompt] = useState('');
     const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+    const [isDeleteFriendModalOpen, setIsDeleteFriendModalOpen] = useState(false);
+    const [isClearHistoryModalOpen, setIsClearHistoryModalOpen] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
   
     useEffect(() => {
@@ -770,6 +772,50 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chat, account, onBack, me
                             保存并返回
                         </button>
 
+                        {/* Danger Zone */}
+                        <div className="flex flex-col gap-3 mt-4">
+                            <button 
+                                onClick={() => setIsClearHistoryModalOpen(true)}
+                                className="w-full bg-white text-gray-700 font-bold py-4 rounded-2xl hover:bg-gray-50 transition-all text-sm border border-gray-100"
+                            >
+                                清空聊天记录
+                            </button>
+                            <button 
+                                onClick={() => setIsDeleteFriendModalOpen(true)}
+                                className="w-full bg-red-50 text-red-500 font-bold py-4 rounded-2xl hover:bg-red-100 transition-all text-sm"
+                            >
+                                删除好友
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Friend Modal */}
+            {isDeleteFriendModalOpen && (
+                <div className="absolute inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-sm px-8 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
+                        <h3 className="text-lg font-bold text-gray-900 mb-2 text-center">删除好友</h3>
+                        <p className="text-sm text-gray-500 text-center mb-6">确认要删除该好友吗？删除后将无法恢复，且聊天记录也会一并清除。</p>
+                        <div className="flex gap-3">
+                            <button onClick={() => setIsDeleteFriendModalOpen(false)} className="flex-1 bg-gray-100 text-gray-900 font-bold py-3.5 rounded-xl hover:bg-gray-200 transition-colors text-sm">取消</button>
+                            <button onClick={() => { setIsDeleteFriendModalOpen(false); onDeleteChat(); }} className="flex-1 bg-red-500 text-white font-bold py-3.5 rounded-xl hover:bg-red-600 shadow-lg shadow-red-500/20 transition-all text-sm">确认删除</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Clear History Modal */}
+            {isClearHistoryModalOpen && (
+                <div className="absolute inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-sm px-8 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
+                        <h3 className="text-lg font-bold text-gray-900 mb-2 text-center">清空聊天记录</h3>
+                        <p className="text-sm text-gray-500 text-center mb-6">确认要清空所有聊天记录吗？清空后AI将失去这段记忆，且无法恢复。</p>
+                        <div className="flex gap-3">
+                            <button onClick={() => setIsClearHistoryModalOpen(false)} className="flex-1 bg-gray-100 text-gray-900 font-bold py-3.5 rounded-xl hover:bg-gray-200 transition-colors text-sm">取消</button>
+                            <button onClick={() => { setIsClearHistoryModalOpen(false); onClearHistory(); setIsSettingsOpen(false); }} className="flex-1 bg-red-500 text-white font-bold py-3.5 rounded-xl hover:bg-red-600 shadow-lg shadow-red-500/20 transition-all text-sm">确认清空</button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -1397,7 +1443,7 @@ const App: React.FC = () => {
         <>
         {activeBottomTab === 'me' ? (
            <div className="flex-1 overflow-y-auto no-scrollbar relative bg-[#f2f4f7]">
-              <div className="pt-14 pb-8 px-6 flex items-start cursor-pointer active:opacity-70 transition-opacity" onClick={() => setIsProfilePageOpen(true)}>
+              <div className="pt-14 pb-8 px-6 flex items-start">
                  <div className="w-16 h-16 rounded-2xl bg-white overflow-hidden border border-gray-100 shadow-sm shrink-0">
                      <img src={currentAccount.avatar} alt="avatar" className="w-full h-full object-cover" />
                  </div>
@@ -1413,7 +1459,6 @@ const App: React.FC = () => {
                          </button>
                      </div>
                  </div>
-                 <div className="pt-5 text-gray-300"><ChevronRight size={18} /></div>
               </div>
 
               <div className="mx-4 mb-3 rounded-2xl overflow-hidden shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)]">
@@ -1439,25 +1484,32 @@ const App: React.FC = () => {
                    </div>
                </div>
                
-               <div className="mt-3">
+               <div className="mt-4 pb-10">
                    {tabs.filter(t => t.id !== 'all').map(tab => {
                        const tabContacts = chats.filter(c => c.categories?.includes(tab.id) && !c.isGroup);
                        if (tab.id === 'group') return null;
 
                        return (
-                           <div key={tab.id} className="bg-white mb-2">
-                               <div className="px-5 py-2.5 bg-gray-50/50 flex justify-between items-center cursor-pointer hover:bg-gray-100 transition-colors">
-                                   <span className="text-xs font-bold text-gray-500">{tab.label}</span>
-                                   <span className="text-xs text-gray-400">{tabContacts.length}</span>
-                               </div>
-                               <div>
+                           <div key={tab.id} className="mb-8">
+                               <div className="px-4 space-y-3">
                                    {tabContacts.length > 0 ? (
                                        tabContacts.map((contact, index) => (
-                                           <div key={contact.id} onClick={() => handleContactClick(contact)} className={`flex items-center px-4 py-3 active:bg-gray-50 cursor-pointer ${index !== tabContacts.length - 1 ? 'border-b border-gray-50' : ''}`}>
-                                               <img src={contact.avatar} className="w-10 h-10 rounded-full object-cover mr-3 border border-gray-100" />
+                                           <div key={contact.id} onClick={() => handleContactClick(contact)} className="relative bg-white rounded-[40px] p-4 flex items-center shadow-sm cursor-pointer active:scale-[0.98] transition-transform">
+                                               {/* Online Badge */}
+                                               {index === 0 && (
+                                                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#e8e8ea] px-4 py-0.5 rounded-full flex items-center gap-1.5 border-[3px] border-[#f2f4f7]">
+                                                       <div className="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
+                                                       <span className="text-[11px] text-gray-500 font-serif tracking-widest">{tab.label}</span>
+                                                   </div>
+                                               )}
+                                               
+                                               <img src={contact.avatar} className="w-12 h-12 rounded-full object-cover mr-4 grayscale" />
                                                <div className="flex-1 min-w-0">
-                                                   <div className="text-[15px] font-medium text-gray-900">{contact.name}</div>
-                                                   <div className="text-xs text-gray-400 truncate">{contact.signature || '暂无签名'}</div>
+                                                   <div className="flex justify-between items-center mb-1">
+                                                       <div className="text-[16px] font-medium text-gray-900">{contact.name}</div>
+                                                       <div className="text-xs text-gray-400">{contact.time || ''}</div>
+                                                   </div>
+                                                   <div className="text-[13px] text-gray-400 truncate">{contact.message || contact.signature || '暂无签名'}</div>
                                                </div>
                                            </div>
                                        ))
@@ -1589,31 +1641,31 @@ const App: React.FC = () => {
         <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md pt-2 pb-6 px-8 flex justify-between items-center rounded-t-[30px] shadow-[0_-5px_20px_-5px_rgba(0,0,0,0.03)] z-50">
           <button className="flex flex-col items-center space-y-1 group w-12" onClick={() => setActiveBottomTab('weixin')}>
             <div className="relative">
-               <MessageCircle className={`w-6 h-6 transition-colors ${activeBottomTab === 'weixin' ? 'text-gray-800 fill-gray-800' : 'text-gray-400'}`} strokeWidth={activeBottomTab === 'weixin' ? 0 : 2} />
+               <MessageCircle className={`w-6 h-6 transition-colors ${activeBottomTab === 'weixin' ? 'text-[#B5B5BC] fill-[#B5B5BC]' : 'text-gray-400'}`} strokeWidth={activeBottomTab === 'weixin' ? 0 : 2} />
                {activeBottomTab === 'weixin' && <div className="absolute -top-0 right-[-4px] w-2 h-2 bg-blue-500 rounded-full border-2 border-white"></div>}
             </div>
-            <span className={`text-[10px] font-medium transition-colors ${activeBottomTab === 'weixin' ? 'text-gray-800' : 'text-gray-400'}`}>QQ</span>
+            <span className={`text-[10px] font-medium transition-colors ${activeBottomTab === 'weixin' ? 'text-[#B5B5BC]' : 'text-gray-400'}`}>QQ</span>
           </button>
           <button className="flex flex-col items-center space-y-1 group w-12" onClick={() => setActiveBottomTab('contacts')}>
             <div className="relative">
-               <Contact className={`w-6 h-6 transition-colors ${activeBottomTab === 'contacts' ? 'text-gray-800 fill-gray-800' : 'text-gray-400'}`} strokeWidth={activeBottomTab === 'contacts' ? 0 : 2} />
+               <Contact className={`w-6 h-6 transition-colors ${activeBottomTab === 'contacts' ? 'text-[#B5B5BC] fill-[#B5B5BC]' : 'text-gray-400'}`} strokeWidth={activeBottomTab === 'contacts' ? 0 : 2} />
                {activeBottomTab === 'contacts' && <div className="absolute -top-0 right-[-4px] w-2 h-2 bg-blue-500 rounded-full border-2 border-white"></div>}
             </div>
-            <span className={`text-[10px] font-medium transition-colors ${activeBottomTab === 'contacts' ? 'text-gray-800' : 'text-gray-400'}`}>通讯录</span>
+            <span className={`text-[10px] font-medium transition-colors ${activeBottomTab === 'contacts' ? 'text-[#B5B5BC]' : 'text-gray-400'}`}>通讯录</span>
           </button>
           <button className="flex flex-col items-center space-y-1 group w-12" onClick={() => setActiveBottomTab('discover')}>
              <div className="relative">
-               <Star className={`w-6 h-6 transition-colors ${activeBottomTab === 'discover' ? 'text-gray-800 fill-gray-800' : 'text-gray-400'}`} strokeWidth={activeBottomTab === 'discover' ? 0 : 2} />
+               <Star className={`w-6 h-6 transition-colors ${activeBottomTab === 'discover' ? 'text-[#B5B5BC] fill-[#B5B5BC]' : 'text-gray-400'}`} strokeWidth={activeBottomTab === 'discover' ? 0 : 2} />
                {activeBottomTab === 'discover' && <div className="absolute -top-0 right-[-4px] w-2 h-2 bg-blue-500 rounded-full border-2 border-white"></div>}
             </div>
-            <span className={`text-[10px] font-medium transition-colors ${activeBottomTab === 'discover' ? 'text-gray-800' : 'text-gray-400'}`}>朋友圈</span>
+            <span className={`text-[10px] font-medium transition-colors ${activeBottomTab === 'discover' ? 'text-[#B5B5BC]' : 'text-gray-400'}`}>朋友圈</span>
           </button>
           <button className="flex flex-col items-center space-y-1 group w-12" onClick={() => setActiveBottomTab('me')}>
              <div className="relative">
-               <User className={`w-6 h-6 transition-colors ${activeBottomTab === 'me' ? 'text-gray-800 fill-gray-800' : 'text-gray-400'}`} strokeWidth={activeBottomTab === 'me' ? 0 : 2} />
+               <User className={`w-6 h-6 transition-colors ${activeBottomTab === 'me' ? 'text-[#B5B5BC] fill-[#B5B5BC]' : 'text-gray-400'}`} strokeWidth={activeBottomTab === 'me' ? 0 : 2} />
                {activeBottomTab === 'me' && <div className="absolute -top-0 right-[-4px] w-2 h-2 bg-blue-500 rounded-full border-2 border-white"></div>}
             </div>
-            <span className={`text-[10px] font-medium transition-colors ${activeBottomTab === 'me' ? 'text-gray-800' : 'text-gray-400'}`}>我</span>
+            <span className={`text-[10px] font-medium transition-colors ${activeBottomTab === 'me' ? 'text-[#B5B5BC]' : 'text-gray-400'}`}>我</span>
           </button>
         </div>
         )}
@@ -1687,14 +1739,13 @@ const App: React.FC = () => {
                        <label className="text-xs font-bold text-gray-500 ml-1 mb-2 block">选择分组</label>
                        <div className="flex flex-wrap gap-2">
                             {tabs.filter(t => t.id !== 'all').map((tab) => (
-                            <button key={tab.id} onClick={() => setContactCategory(tab.id)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 border ${contactCategory === tab.id ? 'bg-blue-500 text-white border-blue-500 shadow-md shadow-blue-500/20' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'}`}>{tab.label}{contactCategory === tab.id && <Check size={10} strokeWidth={3} />}</button>
+                            <button key={tab.id} onClick={() => setContactCategory(tab.id)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 border ${contactCategory === tab.id ? 'bg-[#efe4e9] text-gray-800 border-[#efe4e9] shadow-md shadow-[#efe4e9]/50' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'}`}>{tab.label}{contactCategory === tab.id && <Check size={10} strokeWidth={3} />}</button>
                             ))}
                         </div>
                    </div>
                    <div>
                       <div className="flex justify-between items-center mb-1 ml-1">
                           <label className="text-xs font-bold text-gray-500">人设 (仅用于AI对话)</label>
-                          <button onClick={generateContactPersona} disabled={(!contactRemark && !contactRealName) || isGeneratingPersona} className="text-[10px] font-bold text-blue-500 flex items-center gap-1 hover:text-blue-600 disabled:opacity-50"><RefreshCw size={10} className={isGeneratingPersona ? "animate-spin" : ""} /> {isGeneratingPersona ? '生成中...' : 'AI 生成'}</button>
                       </div>
                       <textarea value={contactPersona} onChange={(e) => setContactPersona(e.target.value)} placeholder="例如：高冷学霸、软萌妹子..." rows={3} className="w-full bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black/10 transition-all border border-gray-100 resize-none" />
                    </div>
@@ -1716,17 +1767,17 @@ const App: React.FC = () => {
              </div>
              <div className="flex-1 overflow-y-auto p-4 space-y-4">
                  {accounts.map(acc => (
-                   <div key={acc.id} onClick={() => setCurrentAccountId(acc.id)} className={`bg-white p-4 rounded-2xl flex items-center space-x-4 shadow-sm border transition-all cursor-pointer ${currentAccountId === acc.id ? 'border-blue-500 ring-1 ring-blue-500' : 'border-transparent hover:border-gray-200'}`}>
+                   <div key={acc.id} onClick={() => setCurrentAccountId(acc.id)} className={`bg-white p-4 rounded-2xl flex items-center space-x-4 shadow-sm border transition-all cursor-pointer ${currentAccountId === acc.id ? 'border-[#efe4e9] ring-1 ring-[#efe4e9]' : 'border-transparent hover:border-gray-200'}`}>
                       <div className="relative shrink-0">
                          <img src={acc.avatar} className="w-14 h-14 rounded-full object-cover border border-gray-100" />
-                         {currentAccountId === acc.id && <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1 border-2 border-white"><Check size={10} className="text-white" strokeWidth={3} /></div>}
+                         {currentAccountId === acc.id && <div className="absolute -bottom-1 -right-1 bg-[#efe4e9] rounded-full p-1 border-2 border-white"><Check size={10} className="text-gray-800" strokeWidth={3} /></div>}
                       </div>
                       <div className="flex-1 min-w-0">
                          <div className="flex justify-between items-start"><h3 className="font-bold text-gray-900 truncate pr-2">{acc.name}</h3></div>
                          <p className="text-xs text-gray-500 truncate mt-0.5"><span className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-500 mr-1.5 font-medium">签名</span>{acc.signature}</p>
                       </div>
                       <div className="flex items-center space-x-1 pl-2">
-                         <button onClick={(e) => openEditAccount(acc, e)} className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-full transition-colors"><Edit2 size={16} /></button>
+                         <button onClick={(e) => openEditAccount(acc, e)} className="p-2 text-gray-400 hover:text-gray-800 hover:bg-[#efe4e9] rounded-full transition-colors"><Edit2 size={16} /></button>
                          {accounts.length > 1 && <button onClick={(e) => handleDeleteAccount(acc.id, e)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"><Trash2 size={16} /></button>}
                       </div>
                    </div>
@@ -1763,7 +1814,6 @@ const App: React.FC = () => {
                    <div>
                       <div className="flex justify-between items-center mb-1 ml-1">
                           <label className="text-xs font-bold text-gray-500">人设 (仅用于AI对话)</label>
-                          <button onClick={generatePersona} disabled={!tempAccountName || isGeneratingPersona} className="text-[10px] font-bold text-blue-500 flex items-center gap-1 hover:text-blue-600 disabled:opacity-50"><RefreshCw size={10} className={isGeneratingPersona ? "animate-spin" : ""} /> {isGeneratingPersona ? '生成中...' : 'AI 生成'}</button>
                       </div>
                       <textarea value={tempAccountPersona} onChange={(e) => setTempAccountPersona(e.target.value)} placeholder="例如：高冷学霸、软萌妹子..." rows={3} className="w-full bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black/10 transition-all border border-gray-100 resize-none" />
                    </div>
