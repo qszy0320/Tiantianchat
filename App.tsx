@@ -494,7 +494,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chat, account, onBack, me
         { icon: Camera, label: '拍摄' },
         { icon: Smile, label: '表情' },
         { icon: Mic, label: '语音' },
-        { icon: BookOpen, label: '日记' },
+        { icon: CreditCard, label: '转账' },
         { icon: Utensils, label: '外卖' },
         { icon: ShoppingBag, label: '购物' },
         { icon: Video, label: '视频通话' },
@@ -558,7 +558,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chat, account, onBack, me
                                 />
                                 <button 
                                     onClick={() => onUpdateChat({ name: remarkName })}
-                                    className="bg-black text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-gray-800 transition-colors shadow-lg shadow-black/20"
+                                    className="bg-[#5f5f5f] text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#4a4a4a] transition-colors shadow-lg shadow-black/20"
                                 >
                                     保存
                                 </button>
@@ -614,7 +614,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chat, account, onBack, me
                                     max={Math.min(messages.length, 500) || 50} 
                                     value={summaryRange}
                                     onChange={(e) => setSummaryRange(parseInt(e.target.value))}
-                                    className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:rounded-full" 
+                                    className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-[#5f5f5f] [&::-webkit-slider-thumb]:rounded-full" 
                                 />
                             </div>
 
@@ -650,7 +650,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chat, account, onBack, me
                             <button 
                                 onClick={handleGenerateSummary}
                                 disabled={isGeneratingSummary || (summaryPerspective === 'custom' && !customSummaryPrompt.trim())}
-                                className="w-full bg-black text-white font-bold py-3 rounded-xl hover:bg-gray-800 transition-colors shadow-lg shadow-black/20 flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full bg-[#5f5f5f] text-white font-bold py-3 rounded-xl hover:bg-[#4a4a4a] transition-colors shadow-lg shadow-black/20 flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isGeneratingSummary ? (
                                     <>
@@ -673,7 +673,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chat, account, onBack, me
                                 </div>
                                 <div 
                                     onClick={() => onUpdateChat({ timePerceptionEnabled: !chat.timePerceptionEnabled })}
-                                    className={`w-11 h-6 rounded-full relative cursor-pointer transition-colors ${chat.timePerceptionEnabled ? 'bg-black' : 'bg-gray-200'}`}
+                                    className={`w-11 h-6 rounded-full relative cursor-pointer transition-colors ${chat.timePerceptionEnabled ? 'bg-[#5f5f5f]' : 'bg-gray-200'}`}
                                 >
                                     <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${chat.timePerceptionEnabled ? 'left-6' : 'left-1'}`}></div>
                                 </div>
@@ -767,7 +767,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chat, account, onBack, me
                         {/* Save Button */}
                         <button 
                             onClick={() => setIsSettingsOpen(false)}
-                            className="w-full bg-black text-white font-bold py-4 rounded-2xl hover:bg-gray-900 shadow-xl shadow-black/10 transition-all text-base mt-2"
+                            className="w-full bg-[#5f5f5f] text-white font-bold py-4 rounded-2xl hover:bg-[#4a4a4a] shadow-xl shadow-black/10 transition-all text-base mt-2"
                         >
                             保存并返回
                         </button>
