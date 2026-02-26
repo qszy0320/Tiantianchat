@@ -5,7 +5,7 @@ import {
   Battery, BatteryCharging, Play, Pause, SkipForward, SkipBack, Music,
   ChevronRight, ShoppingBag, Star, Image as ImageIcon, CreditCard, Smile, Plug, Settings as SettingsIcon,
   Trash2, Upload, Link, RefreshCw, ChevronLeft, Users, CornerDownLeft, MessageSquarePlus, UserPlus, ChevronDown,
-  Flower2, Gift, Send, Mic, Camera, BookOpen, Utensils, Video, Phone, RotateCcw, CheckCheck, Pin, PinOff, Clock
+  Flower2, Gift, Send, Mic, Camera, BookOpen, Utensils, Video, Phone, RotateCcw, CheckCheck, Pin, PinOff, Clock, MapPin
 } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 
@@ -499,6 +499,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chat, account, onBack, me
         { icon: ShoppingBag, label: '购物' },
         { icon: Video, label: '视频通话' },
         { icon: Phone, label: '语音通话' },
+        { icon: MapPin, label: '线下' },
         { icon: RotateCcw, label: '重回' },
     ];
 
@@ -848,10 +849,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chat, account, onBack, me
                                      <span className="text-[10px] text-gray-400 mb-1 ml-1.5">{chat.name}</span>
                                  )}
                                  <div className={`
-                                     relative px-3 py-2 text-[15px] leading-relaxed shadow-[0_1px_2px_rgba(0,0,0,0.05)] flex items-end gap-1.5 group
+                                     relative px-4 py-2.5 text-[15px] leading-relaxed shadow-[0_1px_2px_rgba(0,0,0,0.05)] flex items-end gap-1.5 group
                                      ${msg.isMe 
-                                         ? 'bg-[#efeff4] text-gray-900 rounded-[20px] rounded-tr-[4px]' 
-                                         : 'bg-white text-gray-900 rounded-[20px] rounded-tl-[4px]'
+                                         ? 'bg-[#808080] text-white rounded-2xl rounded-br-sm' 
+                                         : 'bg-[#f2f2f2] text-gray-900 rounded-2xl rounded-bl-sm'
                                      }
                                  `}>
                                      {msg.isMe ? (
